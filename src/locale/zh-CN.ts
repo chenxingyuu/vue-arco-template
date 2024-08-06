@@ -26,10 +26,16 @@ import locale500 from '@/views/exception/500/locale/zh-CN';
 import localeUserInfo from '@/views/user/info/locale/zh-CN';
 import localeUserSetting from '@/views/user/setting/locale/zh-CN';
 
+import localeSystemPermission from '@/views/system/permission/locale/zh-CN';
+
 import localeSettings from './zh-CN/settings';
 
 export default {
   'menu.dashboard': '仪表盘',
+  'menu.system': '系统管理',
+  'menu.system.user': '用户管理',
+  'menu.system.role': '角色管理',
+  'menu.system.permission': '权限管理',
   'menu.server.dashboard': '仪表盘-服务端',
   'menu.server.workplace': '工作台-服务端',
   'menu.server.monitor': '实时监控-服务端',
@@ -64,4 +70,5 @@ export default {
   ...locale500,
   ...localeUserInfo,
   ...localeUserSetting,
+  ...localeSystemPermission,
 };

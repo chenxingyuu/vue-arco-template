@@ -12,7 +12,8 @@ export interface HttpResponse<T = unknown> {
 }
 
 if (import.meta.env.VITE_API_BASE_URL) {
-  axios.defaults.baseURL = import.meta.env.VITE_API_BASE_URL;
+  axios.defaults.baseURL =
+    import.meta.env.VITE_API_BASE_URL + import.meta.env.VITE_API_VERSION;
 }
 
 axios.interceptors.request.use(

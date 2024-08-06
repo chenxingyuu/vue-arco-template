@@ -1,0 +1,15 @@
+export default {
+  'system.permission.title': '权限管理',
+  'system.permission.form.name': '权限名称',
+  'system.permission.form.name.placeholder': '请输入权限名称',
+  'system.permission.form.description': '权限描述',
+  'system.permission.form.description.placeholder': '请输入权限描述',
+  'system.permission.table.columns.id': 'ID',
+  'system.permission.table.columns.name': '名称',
+  'system.permission.table.columns.description': '描述',
+  'system.permission.table.columns.createdAt': '创建时间',
+  'system.permission.table.columns.operations': '操作',
+  'system.permission.table.columns.operations.view': '查看',
+  'system.permission.table.columns.operations.edit': '编辑',
+  'system.permission.table.columns.operations.create': '新建',
+};

@@ -35,3 +35,16 @@ export interface GeneralChart {
   xAxis: string[];
   data: Array<{ name: string; value: number[] }>;
 }
+
+export interface PaginationParams {
+  page: number;
+  limit: number;
+  total?: number;
+}
+
+export interface PaginatedResponse<T> {
+  list: T[];
+  total: number;
+  page: number;
+  limit: number;
+}

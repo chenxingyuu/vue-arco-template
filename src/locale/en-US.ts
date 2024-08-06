@@ -26,10 +26,16 @@ import locale500 from '@/views/exception/500/locale/en-US';
 import localeUserInfo from '@/views/user/info/locale/en-US';
 import localeUserSetting from '@/views/user/setting/locale/en-US';
 
+import localeSystemPermission from '@/views/system/permission/locale/en-US';
+
 import localeSettings from './en-US/settings';
 
 export default {
   'menu.dashboard': 'Dashboard',
+  'menu.system': 'System',
+  'menu.system.user': 'User Manage',
+  'menu.system.role': 'Role Manage',
+  'menu.system.permission': 'Permission Manage',
   'menu.server.dashboard': 'Dashboard-Server',
   'menu.server.workplace': 'Workplace-Server',
   'menu.server.monitor': 'Monitor-Server',
@@ -63,5 +69,6 @@ export default {
   ...locale404,
   ...locale500,
   ...localeUserInfo,
+  ...localeSystemPermission,
   ...localeUserSetting,
 };
