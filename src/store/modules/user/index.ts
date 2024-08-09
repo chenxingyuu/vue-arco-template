@@ -5,7 +5,7 @@ import {
   getUserInfo,
   LoginData,
 } from '@/api/user';
-import { setToken, clearToken } from '@/utils/auth';
+import { setToken, clearToken, setScopes, clearScopes } from '@/utils/auth';
 import { removeRouteListener } from '@/utils/route-listener';
 import { UserState } from './types';
 import useAppStore from '../app';
@@ -63,10 +63,12 @@ const useUserStore = defineStore('user', {
     // Login
     async login(loginForm: LoginData) {
       try {
-        const res = await userLogin(loginForm);
-        setToken(res.data.token);
+        const { data } = await userLogin(loginForm);
+        setToken(`${data.token_type} ${data.access_token}`);
+        setScopes(data.scopes);
       } catch (err) {
         clearToken();
+        clearScopes();
         throw err;
       }
     },
@@ -74,6 +76,7 @@ const useUserStore = defineStore('user', {
       const appStore = useAppStore();
       this.resetInfo();
       clearToken();
+      clearScopes();
       removeRouteListener();
       appStore.clearServerMenu();
     },

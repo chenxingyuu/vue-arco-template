@@ -1,4 +1,5 @@
 const TOKEN_KEY = 'token';
+const SCOPES_KEY = 'scopes';
 
 const isLogin = () => {
   return !!localStorage.getItem(TOKEN_KEY);
@@ -16,4 +17,12 @@ const clearToken = () => {
   localStorage.removeItem(TOKEN_KEY);
 };
 
-export { isLogin, getToken, setToken, clearToken };
+const setScopes = (scopes: string[]) => {
+  localStorage.setItem(SCOPES_KEY, scopes.join(','));
+};
+
+const clearScopes = () => {
+  localStorage.removeItem(SCOPES_KEY);
+};
+
+export { isLogin, getToken, setToken, clearToken, setScopes, clearScopes };

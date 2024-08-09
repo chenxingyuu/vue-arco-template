@@ -8,10 +8,20 @@ export interface LoginData {
 }
 
 export interface LoginRes {
-  token: string;
+  access_token: string;
+  token_type: string;
+  scopes: string[];
 }
+
 export function login(data: LoginData) {
-  return axios.post<LoginRes>('/api/user/login', data);
+  const params = new URLSearchParams();
+  params.append('username', data.username);
+  params.append('password', data.password);
+  return axios.post<LoginRes>('/auth/token', params, {
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+  });
 }
 
 export function logout() {
