@@ -4,8 +4,15 @@ import {
   logout as userLogout,
   getUserInfo,
   LoginData,
+  getUserPermissions,
 } from '@/api/user';
-import { setToken, clearToken, setScopes, clearScopes } from '@/utils/auth';
+import {
+  setToken,
+  clearToken,
+  setScopes,
+  clearScopes,
+  getScopes,
+} from '@/utils/auth';
 import { removeRouteListener } from '@/utils/route-listener';
 import { UserState } from './types';
 import useAppStore from '../app';
@@ -15,7 +22,6 @@ const useUserStore = defineStore('user', {
     name: undefined,
     avatar: undefined,
     job: undefined,
-    organization: undefined,
     location: undefined,
     email: undefined,
     introduction: undefined,
@@ -28,6 +34,7 @@ const useUserStore = defineStore('user', {
     accountId: undefined,
     certification: undefined,
     role: '',
+    permissions: [],
   }),
 
   getters: {
@@ -35,7 +42,6 @@ const useUserStore = defineStore('user', {
       return { ...state };
     },
   },
-
   actions: {
     switchRoles() {
       return new Promise((resolve) => {
@@ -43,9 +49,24 @@ const useUserStore = defineStore('user', {
         resolve(this.role);
       });
     },
+
     // Set user's information
     setInfo(partial: Partial<UserState>) {
       this.$patch(partial);
+    },
+
+    setPermissions(permissions: string[]) {
+      return new Promise((resolve) => {
+        this.permissions = permissions;
+        resolve(this.permissions);
+      });
+    },
+
+    clearPermissions() {
+      return new Promise((resolve) => {
+        this.permissions = [];
+        resolve(this.permissions);
+      });
     },
 
     // Reset user's information
@@ -55,9 +76,9 @@ const useUserStore = defineStore('user', {
 
     // Get user's information
     async info() {
-      const res = await getUserInfo();
-
-      this.setInfo(res.data);
+      const { data } = await getUserInfo();
+      data.permissions = getScopes();
+      this.setInfo(data);
     },
 
     // Login
@@ -66,12 +87,15 @@ const useUserStore = defineStore('user', {
         const { data } = await userLogin(loginForm);
         setToken(`${data.token_type} ${data.access_token}`);
         setScopes(data.scopes);
+        await this.setPermissions(data.scopes);
       } catch (err) {
         clearToken();
         clearScopes();
+        await this.clearPermissions();
         throw err;
       }
     },
+
     logoutCallBack() {
       const appStore = useAppStore();
       this.resetInfo();

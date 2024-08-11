@@ -1,16 +1,6 @@
 import axios from 'axios';
-import { PaginationParams, PaginatedResponse } from '@/types/global';
-
-export interface Permission {
-  id: number;
-  name: string;
-  description: string;
-}
-
-export interface PermissionQueryParams extends PaginationParams {
-  name?: string;
-  description?: string;
-}
+import { PaginatedResponse } from '@/types/global';
+import { Permission, PermissionQueryParams } from '@/api/system/types';
 
 export function getPermissionList(params: PermissionQueryParams) {
   return axios.get<PaginatedResponse<Permission>>('/permissions', { params });
@@ -42,4 +32,8 @@ export function partialUpdatePermission(
 
 export function deletePermission(id: number) {
   return axios.delete(`/permissions/${id}`);
+}
+
+export function getAllPermission() {
+  return axios.get<Permission>('/permissions/all');
 }

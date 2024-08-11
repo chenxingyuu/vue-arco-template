@@ -1,6 +1,6 @@
 import axios from 'axios';
 import type { RouteRecordNormalized } from 'vue-router';
-import { UserState } from '@/store/modules/user/types';
+import { Permission, UserState } from '@/store/modules/user/types';
 
 export interface LoginData {
   username: string;
@@ -29,7 +29,15 @@ export function logout() {
 }
 
 export function getUserInfo() {
-  return axios.post<UserState>('/api/user/info');
+  return axios.get<UserState>('/users/me');
+}
+
+export function getUserPermissions() {
+  return axios.get<Permission[]>('/users/me/permissions');
+}
+
+export function getUserRoles() {
+  return axios.get<UserState>('/users/me/roles');
 }
 
 export function getMenuList() {

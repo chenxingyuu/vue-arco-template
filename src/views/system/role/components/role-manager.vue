@@ -1,6 +1,6 @@
 <template>
-  <a-card class="general-card" :title="$t('system.permission.title')">
-    <permission-filter
+  <a-card class="general-card" :title="$t('system.role.title')">
+    <role-filter
       @reset="reset"
       @search="search"
       @create="() => openDrawer('add')"
@@ -12,7 +12,7 @@
       :loading="loading"
       :pagination="pagination"
       :columns="columns"
-      :data="permissions"
+      :data="roles"
       :stripe="true"
       :bordered="false"
       :size="size"
@@ -23,32 +23,33 @@
       </template>
       <template #operations="{ record }">
         <a-button
-          v-permission="['system:permission:read']"
+          v-Role="['system:role:read']"
           type="text"
           size="small"
           @click="() => openDrawer('detail', record)"
         >
-          {{ $t('system.permission.table.columns.operations.view') }}
+          {{ $t('system.role.table.columns.operations.view') }}
         </a-button>
         <a-button
-          v-permission="['system:permission:update']"
+          v-Role="['system:role:update']"
           type="text"
           size="small"
           style="margin-left: 8px"
           @click="() => openDrawer('edit', record)"
         >
-          {{ $t('system.permission.table.columns.operations.edit') }}
+          {{ $t('system.role.table.columns.operations.edit') }}
         </a-button>
       </template>
     </a-table>
-    <permission-detail
+    <role-detail
       :visible="drawerVisible"
       :title="drawerTitle"
       :mode="drawerMode"
-      :initial-form-model="selectedPermission"
+      :role-id="selectedRoleID"
+      :initial-form-model="selectedRole"
       @update:visible="(val) => (drawerVisible = val)"
-      @add="addPermission"
-      @edit="editPermission"
+      @add="addRole"
+      @edit="editRole"
     />
   </a-card>
 </template>
@@ -56,22 +57,19 @@
 <script lang="ts" setup>
   import { ref, computed, reactive } from 'vue';
   import { useI18n } from 'vue-i18n';
-  import {
-    createPermission,
-    getPermissionList,
-    updatePermission,
-  } from '@/api/system/permissions';
+  import { createRole, getRoleList, updateRole } from '@/api/system/roles';
   import type { TableColumnData } from '@arco-design/web-vue/es/table/interface';
   import useLoading from '@/hooks/loading';
   import { formatDate } from '@/utils/date';
-  import PermissionFilter from '@/views/system/permission/components/permission-filter.vue';
-  import PermissionDetail from '@/views/system/permission/components/permission-detail.vue';
-  import { Permission, PermissionQueryParams } from '@/api/system/types';
+  import RoleFilter from '@/views/system/role/components/role-filter.vue';
+  import RoleDetail from '@/views/system/role/components/role-detail.vue';
+  import { Role, RoleQueryParams } from '@/api/system/types';
 
   const drawerVisible = ref(false);
   const drawerTitle = ref('');
   const drawerMode = ref<'add' | 'edit' | 'detail'>('add');
-  const selectedPermission = ref<Pick<Permission, 'name' | 'description'>>({
+  const selectedRoleID = ref(0);
+  const selectedRole = ref<Pick<Role, 'name' | 'description'>>({
     name: '',
     description: '',
   });
@@ -80,7 +78,7 @@
 
   const { loading, setLoading } = useLoading(true);
   const { t } = useI18n();
-  const permissions = ref<Permission[]>([]);
+  const roles = ref<Role[]>([]);
   const formModel = reactive({
     name: '',
     description: '',
@@ -88,34 +86,34 @@
   const size = ref<SizeProps>('medium');
   const columns = computed<TableColumnData[]>(() => [
     {
-      title: t('system.permission.table.columns.id'),
+      title: t('system.role.table.columns.id'),
       dataIndex: 'id',
       width: 80,
     },
     {
-      title: t('system.permission.table.columns.name'),
+      title: t('system.role.table.columns.name'),
       dataIndex: 'name',
       width: 200,
     },
     {
-      title: t('system.permission.table.columns.description'),
+      title: t('system.role.table.columns.description'),
       dataIndex: 'description',
     },
     {
-      title: t('system.permission.table.columns.createdAt'),
+      title: t('system.role.table.columns.createdAt'),
       dataIndex: 'created_at',
       slotName: 'created_at',
       width: 250,
     },
     {
-      title: t('system.permission.table.columns.operations'),
+      title: t('system.role.table.columns.operations'),
       dataIndex: 'operations',
       slotName: 'operations',
       align: 'center',
       width: 250,
     },
   ]);
-  const basePagination: PermissionQueryParams = {
+  const basePagination: RoleQueryParams = {
     page: 1,
     limit: 10,
   };
@@ -123,11 +121,11 @@
     ...basePagination,
   });
 
-  const fetchData = async (params: PermissionQueryParams = pagination) => {
+  const fetchData = async (params: RoleQueryParams = pagination) => {
     setLoading(true);
     try {
-      const { data } = await getPermissionList(params);
-      permissions.value = data.list;
+      const { data } = await getRoleList(params);
+      roles.value = data.list;
       pagination.page = data.page;
       pagination.total = data.total;
     } catch (err) {
@@ -143,7 +141,7 @@
     fetchData({
       ...basePagination,
       ...formModel,
-    } as unknown as PermissionQueryParams);
+    } as unknown as RoleQueryParams);
   };
 
   const onPageChange = (page: number) => {
@@ -159,11 +157,11 @@
     formModel.description = newFormModel.description;
   };
 
-  const addPermission = async (permission: Permission) => {
+  const addRole = async (role: Role) => {
     try {
-      await createPermission({
-        name: permission.name,
-        description: permission.description,
+      await createRole({
+        name: role.name,
+        description: role.description,
       });
       // Refresh or handle after save
       drawerVisible.value = false;
@@ -173,11 +171,11 @@
     }
   };
 
-  const editPermission = async (permission: Permission) => {
+  const editRole = async (role: Role) => {
     try {
-      await updatePermission(permission.id, {
-        name: permission.name,
-        description: permission.description,
+      await updateRole(role.id, {
+        name: role.name,
+        description: role.description,
       });
       // Refresh or handle after save
       drawerVisible.value = false;
@@ -187,28 +185,29 @@
     }
   };
 
-  const openDrawer = (
-    mode: 'add' | 'edit' | 'detail',
-    permission?: Permission
-  ) => {
+  const openDrawer = (mode: 'add' | 'edit' | 'detail', role?: Role) => {
     drawerMode.value = mode;
 
     // eslint-disable-next-line default-case
     switch (mode) {
       case 'add':
-        drawerTitle.value = '新增权限';
+        drawerTitle.value = t(
+          'system.role.table.columns.operations.create.title'
+        );
         break;
       case 'detail':
-        drawerTitle.value = '权限详情';
+        drawerTitle.value = t(
+          'system.role.table.columns.operations.view.title'
+        );
         break;
       case 'edit':
-        drawerTitle.value = '编辑权限';
+        drawerTitle.value = t(
+          'system.role.table.columns.operations.edit.title'
+        );
         break;
     }
-
-    selectedPermission.value = permission
-      ? { ...permission }
-      : { name: '', description: '' };
+    selectedRoleID.value = role ? role.id : 0;
+    selectedRole.value = role ? { ...role } : { name: '', description: '' };
     drawerVisible.value = true;
   };
 </script>

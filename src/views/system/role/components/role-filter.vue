@@ -10,26 +10,21 @@
       >
         <a-row :gutter="16">
           <a-col :span="12">
-            <a-form-item
-              field="name"
-              :label="$t('system.permission.form.name')"
-            >
+            <a-form-item field="name" :label="$t('system.role.form.name')">
               <a-input
                 v-model="localFormModel.name"
-                :placeholder="$t('system.permission.form.name.placeholder')"
+                :placeholder="$t('system.role.form.name.placeholder')"
               />
             </a-form-item>
           </a-col>
           <a-col :span="12">
             <a-form-item
               field="description"
-              :label="$t('system.permission.form.description')"
+              :label="$t('system.role.form.description')"
             >
               <a-input
                 v-model="localFormModel.description"
-                :placeholder="
-                  $t('system.permission.form.description.placeholder')
-                "
+                :placeholder="$t('system.role.form.description.placeholder')"
               />
             </a-form-item>
           </a-col>
@@ -52,7 +47,7 @@
           {{ $t('searchTable.form.search') }}
         </a-button>
         <a-button
-          v-permission="['system:permission:update', 'system:permission:read']"
+          v-permission="['system:role:update', 'system:role:read']"
           type="primary"
           @click="onCreate"
         >
