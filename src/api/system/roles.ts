@@ -14,21 +14,28 @@ export async function createRole(role: Pick<Role, 'name' | 'description'>) {
   return axios.post('/roles', role);
 }
 
-export function updateRole(
+export async function updateRole(
   id: number,
   role: Pick<Role, 'name' | 'description'>
 ) {
   return axios.put(`/roles/${id}`, role);
 }
 
-export function partialUpdateRole(id: number, role: Partial<Role>) {
+export async function partialUpdateRole(id: number, role: Partial<Role>) {
   return axios.patch(`/roles/${id}`, role);
 }
 
-export function deleteRole(id: number) {
+export async function deleteRole(id: number) {
   return axios.delete(`/roles/${id}`);
 }
 
-export function getRolePermissions(id: number) {
+export async function getRolePermissions(id: number) {
   return axios.get<Permission[]>(`/roles/${id}/permissions`);
+}
+
+export async function updateRolePermissions(
+  id: number,
+  permissionIds: number[]
+) {
+  return axios.put(`/roles/${id}/permissions`, permissionIds);
 }

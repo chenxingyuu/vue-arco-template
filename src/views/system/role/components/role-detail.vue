@@ -36,6 +36,15 @@
         field="permissions"
         :label="$t('system.role.form.permissions')"
       >
+        <a-spin v-if="loading" />
+        <a-transfer
+          v-else
+          :title="['所有', '当前']"
+          :data="allPermissions"
+          :default-value="rolePermissions"
+          @change="handleChange"
+        >
+        </a-transfer>
       </a-form-item>
     </a-form>
   </a-drawer>
@@ -44,8 +53,12 @@
 <script setup lang="ts">
   import { ref, defineProps, defineEmits, watch, computed } from 'vue';
   import { getRolePermissions } from '@/api/system/roles';
-  import { Permission } from '@/api/system/types';
+  import { TransferItem } from '@arco-design/web-vue/es/transfer/interface';
+  import { getAllPermission } from '@/api/system/permissions';
+  import useLoading from '@/hooks/loading';
+  import { isEqual } from 'lodash';
 
+  const { loading, setLoading } = useLoading(false);
   const props = defineProps({
     visible: {
       type: Boolean,
@@ -72,13 +85,20 @@
   const emit = defineEmits(['update:visible', 'add', 'edit']);
 
   const formModel = ref({ ...props.initialFormModel });
+  const originalFormModel = ref({ ...props.initialFormModel }); // 保存初始状态
 
-  const rolePermissions = ref<Permission[]>([]);
+  const allPermissions = ref<TransferItem[]>([]);
+  const rolePermissions = ref<string[]>([]);
+  const originalRolePermissions = ref<string[]>([]); // 保存初始状态
 
-  const fetchRolePermission = async () => {
+  const fetAllPermissions = async () => {
     try {
-      const { data } = await getRolePermissions(props.roleId);
-      rolePermissions.value = data;
+      const { data } = await getAllPermission();
+      allPermissions.value = data.map((permission) => ({
+        value: `${permission.id}`,
+        label: permission.name,
+        disabled: false,
+      }));
     } catch (err) {
       // Handle error
     } finally {
@@ -86,17 +106,49 @@
     }
   };
 
+  fetAllPermissions();
+
+  const fetchRolePermission = async () => {
+    try {
+      setLoading(true);
+      const { data } = await getRolePermissions(props.roleId);
+      // 将返回的数据转换为 a-transfer 组件需要的格式
+      rolePermissions.value = data.map((permission) => `${permission.id}`);
+      originalRolePermissions.value = [...rolePermissions.value]; // 保存初始状态
+    } catch (err) {
+      // Handle error
+    } finally {
+      // finally
+      setLoading(false);
+    }
+  };
+
+  // 处理 a-transfer 中选中的项变化
+  const handleChange = (newTargetKeys: string[]) => {
+    rolePermissions.value = newTargetKeys;
+    // 这里的 newTargetKeys 是用户当前选中的项的 key 列表
+    // 你可以在这里添加其他逻辑，例如保存选中的权限到服务器
+  };
+
   watch(
-    () => props.initialFormModel,
-    (newVal) => {
-      formModel.value = { ...newVal };
+    () => props.visible,
+    () => {
+      if (props.visible === true) {
+        if (props.roleId !== 0) {
+          fetchRolePermission();
+        }
+        originalFormModel.value = { ...props.initialFormModel }; // 保存初始状态
+      } else {
+        rolePermissions.value = [];
+        originalRolePermissions.value = [...rolePermissions.value];
+      }
     }
   );
 
   watch(
-    () => props.roleId,
-    () => {
-      fetchRolePermission();
+    () => props.initialFormModel,
+    (newVal) => {
+      formModel.value = { ...newVal };
     }
   );
 
@@ -106,12 +158,21 @@
   };
 
   const handleSave = () => {
+    if (
+      isEqual(formModel.value, originalFormModel.value) &&
+      isEqual(rolePermissions.value, originalRolePermissions.value)
+    ) {
+      // 数据没有改变，不调用接口
+      handleClose();
+      return;
+    }
+
     switch (props.mode) {
       case 'add':
-        emit('add', formModel.value);
+        emit('add', formModel.value, rolePermissions.value);
         break;
       case 'edit':
-        emit('edit', formModel.value);
+        emit('edit', formModel.value, rolePermissions.value);
         break;
       default:
         handleClose();

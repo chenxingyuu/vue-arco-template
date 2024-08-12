@@ -57,7 +57,12 @@
 <script lang="ts" setup>
   import { ref, computed, reactive } from 'vue';
   import { useI18n } from 'vue-i18n';
-  import { createRole, getRoleList, updateRole } from '@/api/system/roles';
+  import {
+    createRole,
+    getRoleList,
+    updateRole,
+    updateRolePermissions,
+  } from '@/api/system/roles';
   import type { TableColumnData } from '@arco-design/web-vue/es/table/interface';
   import useLoading from '@/hooks/loading';
   import { formatDate } from '@/utils/date';
@@ -157,12 +162,16 @@
     formModel.description = newFormModel.description;
   };
 
-  const addRole = async (role: Role) => {
+  const addRole = async (role: Role, permissions: string[]) => {
     try {
       await createRole({
         name: role.name,
         description: role.description,
       });
+      await updateRolePermissions(
+        role.id,
+        permissions.map((str) => Number(str))
+      );
       // Refresh or handle after save
       drawerVisible.value = false;
       await fetchData();
@@ -171,12 +180,16 @@
     }
   };
 
-  const editRole = async (role: Role) => {
+  const editRole = async (role: Role, permissions: string[]) => {
     try {
       await updateRole(role.id, {
         name: role.name,
         description: role.description,
       });
+      await updateRolePermissions(
+        role.id,
+        permissions.map((str) => Number(str))
+      );
       // Refresh or handle after save
       drawerVisible.value = false;
       await fetchData();

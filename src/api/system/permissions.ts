@@ -35,5 +35,5 @@ export function deletePermission(id: number) {
 }
 
 export function getAllPermission() {
-  return axios.get<Permission>('/permissions/all');
+  return axios.get<Permission[]>('/permissions/all');
 }
