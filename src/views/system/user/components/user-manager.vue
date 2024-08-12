@@ -1,6 +1,6 @@
 <template>
-  <a-card class="general-card" :title="$t('system.role.title')">
-    <role-filter
+  <a-card class="general-card" :title="$t('system.user.title')">
+    <user-filter
       @reset="reset"
       @search="search"
       @create="() => openDrawer('add')"
@@ -12,7 +12,7 @@
       :loading="loading"
       :pagination="pagination"
       :columns="columns"
-      :data="roles"
+      :data="users"
       :stripe="true"
       :bordered="false"
       :size="size"
@@ -23,33 +23,33 @@
       </template>
       <template #operations="{ record }">
         <a-button
-          v-Role="['system:role:read']"
+          v-Role="['system:user:read']"
           type="text"
           size="small"
           @click="() => openDrawer('detail', record)"
         >
-          {{ $t('system.role.table.columns.operations.view') }}
+          {{ $t('system.user.table.columns.operations.view') }}
         </a-button>
         <a-button
-          v-Role="['system:role:update']"
+          v-Role="['system:user:update']"
           type="text"
           size="small"
           style="margin-left: 8px"
           @click="() => openDrawer('edit', record)"
         >
-          {{ $t('system.role.table.columns.operations.edit') }}
+          {{ $t('system.user.table.columns.operations.edit') }}
         </a-button>
       </template>
     </a-table>
-    <role-detail
+    <user-detail
       :visible="drawerVisible"
       :title="drawerTitle"
       :mode="drawerMode"
-      :role-id="selectedRoleID"
-      :initial-form-model="selectedRole"
+      :user-id="selectedUserID"
+      :initial-form-model="selectedUser"
       @update:visible="(val) => (drawerVisible = val)"
-      @add="addRole"
-      @edit="editRole"
+      @add="addUser"
+      @edit="editUser"
     />
   </a-card>
 </template>
@@ -58,68 +58,67 @@
   import { ref, computed, reactive } from 'vue';
   import { useI18n } from 'vue-i18n';
   import {
-    createRole,
-    getRoleList,
-    updateRole,
-    updateRolePermissions,
-  } from '@/api/system/roles';
+    createUser,
+    getUserList,
+    updateUser,
+    updateUserPermissions,
+    updateUserRoles,
+  } from '@/api/system/users';
   import type { TableColumnData } from '@arco-design/web-vue/es/table/interface';
   import useLoading from '@/hooks/loading';
   import { formatDate } from '@/utils/date';
-  import RoleFilter from '@/views/system/role/components/role-filter.vue';
-  import RoleDetail from '@/views/system/role/components/role-detail.vue';
-  import { Role, RoleQueryParams } from '@/api/system/types';
-  import { length } from 'lodash';
+  import UserFilter from '@/views/system/user/components/user-filter.vue';
+  import UserDetail from '@/views/system/user/components/user-detail.vue';
+  import { User, UserQueryParams } from '@/api/system/types';
 
   const drawerVisible = ref(false);
   const drawerTitle = ref('');
   const drawerMode = ref<'add' | 'edit' | 'detail'>('add');
-  const selectedRoleID = ref(0);
-  const selectedRole = ref<Pick<Role, 'name' | 'description'>>({
-    name: '',
-    description: '',
+  const selectedUserID = ref(0);
+  const selectedUser = ref<Pick<User, 'username'>>({
+    username: '',
   });
 
   type SizeProps = 'mini' | 'small' | 'medium' | 'large';
 
   const { loading, setLoading } = useLoading(true);
   const { t } = useI18n();
-  const roles = ref<Role[]>([]);
+  const users = ref<User[]>([]);
   const formModel = reactive({
-    name: '',
+    username: '',
     description: '',
   });
   const size = ref<SizeProps>('medium');
   const columns = computed<TableColumnData[]>(() => [
     {
-      title: t('system.role.table.columns.id'),
+      title: t('system.user.table.columns.id'),
       dataIndex: 'id',
       width: 80,
     },
     {
-      title: t('system.role.table.columns.name'),
-      dataIndex: 'name',
+      title: t('system.user.table.columns.username'),
+      dataIndex: 'username',
       width: 200,
     },
     {
-      title: t('system.role.table.columns.description'),
+      title: t('system.user.table.columns.description'),
       dataIndex: 'description',
     },
     {
-      title: t('system.role.table.columns.createdAt'),
+      title: t('system.user.table.columns.createdAt'),
       dataIndex: 'created_at',
       slotName: 'created_at',
       width: 250,
     },
     {
-      title: t('system.role.table.columns.operations'),
+      title: t('system.user.table.columns.operations'),
       dataIndex: 'operations',
       slotName: 'operations',
       align: 'center',
       width: 250,
     },
   ]);
-  const basePagination: RoleQueryParams = {
+  const basePagination: UserQueryParams = {
     page: 1,
     limit: 10,
   };
@@ -127,11 +126,11 @@
     ...basePagination,
   });
 
-  const fetchData = async (params: RoleQueryParams = pagination) => {
+  const fetchData = async (params: UserQueryParams = pagination) => {
     setLoading(true);
     try {
-      const { data } = await getRoleList(params);
-      roles.value = data.list;
+      const { data } = await getUserList(params);
+      users.value = data.list;
       pagination.page = data.page;
       pagination.total = data.total;
     } catch (err) {
@@ -147,35 +146,39 @@
     fetchData({
       ...basePagination,
       ...formModel,
-    } as unknown as RoleQueryParams);
+    } as unknown as UserQueryParams);
   };
 
   const onPageChange = (page: number) => {
     fetchData({ ...basePagination, page });
   };
   const reset = () => {
-    formModel.name = '';
+    formModel.username = '';
     formModel.description = '';
   };
 
-  const changed = (newFormModel: { name: string; description: string }) => {
-    formModel.name = newFormModel.name;
+  const changed = (newFormModel: { username: string; description: string }) => {
+    formModel.username = newFormModel.username;
     formModel.description = newFormModel.description;
   };
 
-  const addRole = async (role: Role, permissions: string[]) => {
+  const addUser = async (
+    user: User,
+    permissions: string[],
+    roles: string[]
+  ) => {
     try {
-      const { data } = await createRole({
-        name: role.name,
-        description: role.description,
+      const { data } = await createUser({
+        username: user.username,
       });
-      if (permissions) {
-        await updateRolePermissions(
-          data.id,
-          permissions.map((str) => Number(str))
-        );
-      }
-
+      await updateUserPermissions(
+        data.id,
+        permissions.map((str) => Number(str))
+      );
+      await updateUserRoles(
+        data.id,
+        roles.map((str) => Number(str))
+      );
       // Refresh or handle after save
       drawerVisible.value = false;
       await fetchData();
@@ -184,25 +187,33 @@
     }
   };
 
-  const editRole = async (
-    role: Role,
+  const editUser = async (
+    user: User,
     permissions: string[],
+    roles: string[],
     equalForm: boolean,
-    equalPermission: boolean
+    equalPermission: boolean,
+    equalRole: boolean
   ) => {
     try {
       if (!equalForm) {
-        await updateRole(role.id, {
-          name: role.name,
-          description: role.description,
+        await updateUser(user.id, {
+          username: user.username,
         });
       }
       if (!equalPermission) {
-        await updateRolePermissions(
-          role.id,
+        await updateUserPermissions(
+          user.id,
           permissions.map((str) => Number(str))
         );
       }
+      if (!equalRole) {
+        await updateUserRoles(
+          user.id,
+          roles.map((str) => Number(str))
+        );
+      }
+
       // Refresh or handle after save
       drawerVisible.value = false;
       await fetchData();
@@ -211,29 +222,29 @@
     }
   };
 
-  const openDrawer = (mode: 'add' | 'edit' | 'detail', role?: Role) => {
+  const openDrawer = (mode: 'add' | 'edit' | 'detail', user?: User) => {
     drawerMode.value = mode;
 
     // eslint-disable-next-line default-case
     switch (mode) {
       case 'add':
         drawerTitle.value = t(
-          'system.role.table.columns.operations.create.title'
+          'system.user.table.columns.operations.create.title'
         );
         break;
       case 'detail':
         drawerTitle.value = t(
-          'system.role.table.columns.operations.view.title'
+          'system.user.table.columns.operations.view.title'
         );
         break;
       case 'edit':
         drawerTitle.value = t(
-          'system.role.table.columns.operations.edit.title'
+          'system.user.table.columns.operations.edit.title'
         );
         break;
     }
-    selectedRoleID.value = role ? role.id : 0;
-    selectedRole.value = role ? { ...role } : { name: '', description: '' };
+    selectedUserID.value = user ? user.id : 0;
+    selectedUser.value = user ? { ...user } : { username: '' };
     drawerVisible.value = true;
   };
 </script>

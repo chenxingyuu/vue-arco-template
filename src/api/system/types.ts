@@ -21,3 +21,13 @@ export interface PermissionQueryParams extends PaginationParams {
   name?: string;
   description?: string;
 }
+
+export interface User {
+  id: number;
+  username: string;
+}
+
+export interface UserQueryParams extends PaginationParams {
+  username?: string;
+  description?: string;
+}

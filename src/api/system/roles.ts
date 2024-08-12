@@ -11,7 +11,7 @@ export function getRoleDetail() {
 }
 
 export async function createRole(role: Pick<Role, 'name' | 'description'>) {
-  return axios.post('/roles', role);
+  return axios.post<Role>('/roles', role);
 }
 
 export async function updateRole(
@@ -38,4 +38,8 @@ export async function updateRolePermissions(
   permissionIds: number[]
 ) {
   return axios.put(`/roles/${id}/permissions`, permissionIds);
+}
+
+export function getAllRole() {
+  return axios.get<Role[]>('/roles/all');
 }

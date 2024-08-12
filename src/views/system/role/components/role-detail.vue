@@ -158,10 +158,12 @@
   };
 
   const handleSave = () => {
-    if (
-      isEqual(formModel.value, originalFormModel.value) &&
-      isEqual(rolePermissions.value, originalRolePermissions.value)
-    ) {
+    const equalForm = isEqual(formModel.value, originalFormModel.value);
+    const equalPermission = isEqual(
+      rolePermissions.value,
+      originalRolePermissions.value
+    );
+    if (equalForm && equalPermission) {
       // 数据没有改变，不调用接口
       handleClose();
       return;
@@ -172,7 +174,13 @@
         emit('add', formModel.value, rolePermissions.value);
         break;
       case 'edit':
-        emit('edit', formModel.value, rolePermissions.value);
+        emit(
+          'edit',
+          formModel.value,
+          rolePermissions.value,
+          equalForm,
+          equalPermission
+        );
         break;
       default:
         handleClose();

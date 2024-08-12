@@ -32,7 +32,7 @@ export function getUserInfo() {
   return axios.get<UserState>('/users/me');
 }
 
-export function getUserPermissions() {
+export function getUserMePermissions() {
   return axios.get<Permission[]>('/users/me/permissions');
 }
 
