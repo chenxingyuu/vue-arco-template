@@ -1,11 +1,9 @@
 import { defineStore } from 'pinia';
 import {
-  login as userLogin,
   logout as userLogout,
-  getUserInfo,
-  LoginData,
-  getUserPermissions,
-} from '@/api/user';
+  githubAuthorizer,
+  login as userLogin,
+} from '@/api/system/auth';
 import {
   setToken,
   clearToken,
@@ -14,6 +12,8 @@ import {
   getScopes,
 } from '@/utils/auth';
 import { removeRouteListener } from '@/utils/route-listener';
+import { LoginData } from '@/api/system/types';
+import { getUserInfo } from '@/api/user';
 import { UserState } from './types';
 import useAppStore from '../app';
 
@@ -85,6 +85,19 @@ const useUserStore = defineStore('user', {
     async login(loginForm: LoginData) {
       try {
         const { data } = await userLogin(loginForm);
+        setToken(`${data.token_type} ${data.access_token}`);
+        setScopes(data.scopes);
+        await this.setPermissions(data.scopes);
+      } catch (err) {
+        clearToken();
+        clearScopes();
+        await this.clearPermissions();
+        throw err;
+      }
+    },
+    async loginByGithub(code: string) {
+      try {
+        const { data } = await githubAuthorizer({ code });
         setToken(`${data.token_type} ${data.access_token}`);
         setScopes(data.scopes);
         await this.setPermissions(data.scopes);

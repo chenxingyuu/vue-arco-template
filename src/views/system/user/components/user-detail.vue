@@ -23,16 +23,6 @@
         />
       </a-form-item>
       <a-form-item
-        field="description"
-        :label="$t('system.user.form.description')"
-      >
-        <a-input
-          v-model="formModel.description"
-          :placeholder="$t('system.user.form.description.placeholder')"
-          :readonly="isDetailMode"
-        />
-      </a-form-item>
-      <a-form-item
         field="permissions"
         :label="$t('system.user.form.permissions')"
       >
@@ -96,8 +86,8 @@
       default: 0,
     },
     initialFormModel: {
-      type: Object as () => { username: string; description: string },
-      default: () => ({ username: '', description: '' }),
+      type: Object as () => { username: string },
+      default: () => ({ username: '' }),
     },
   });
 
@@ -216,7 +206,7 @@
 
   const handleClose = () => {
     emit('update:visible', false);
-    formModel.value = { username: '', description: '' };
+    formModel.value = { username: '' };
   };
 
   const handleSave = () => {

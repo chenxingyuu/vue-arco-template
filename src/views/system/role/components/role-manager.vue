@@ -69,7 +69,6 @@
   import RoleFilter from '@/views/system/role/components/role-filter.vue';
   import RoleDetail from '@/views/system/role/components/role-detail.vue';
   import { Role, RoleQueryParams } from '@/api/system/types';
-  import { length } from 'lodash';
 
   const drawerVisible = ref(false);
   const drawerTitle = ref('');

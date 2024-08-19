@@ -1,5 +1,24 @@
 import { PaginationParams } from '@/types/global';
 
+export interface LoginData {
+  username: string;
+  password: string;
+}
+
+export interface AuthRes {
+  access_token: string;
+  token_type: string;
+  scopes: string[];
+}
+
+export interface GithubAuthorizeRequest {
+  code: string;
+}
+
+export interface GoogleAuthorizeRequest {
+  code: string;
+}
+
 export interface Role {
   id: number;
   name: string;
