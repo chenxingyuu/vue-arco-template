@@ -3,6 +3,7 @@ import {
   logout as userLogout,
   githubAuthorizer,
   login as userLogin,
+  googleAuthorizer,
 } from '@/api/system/auth';
 import {
   setToken,
@@ -12,10 +13,20 @@ import {
   getScopes,
 } from '@/utils/auth';
 import { removeRouteListener } from '@/utils/route-listener';
-import { LoginData } from '@/api/system/types';
+import { AuthRes, LoginData } from '@/api/system/types';
 import { getUserInfo } from '@/api/user';
 import { UserState } from './types';
-import useAppStore from '../app';
+
+// Helper functions
+async function handleLoginSuccess(data: AuthRes) {
+  setToken(`${data.token_type} ${data.access_token}`);
+  setScopes(data.scopes);
+}
+
+async function handleLoginError() {
+  clearToken();
+  clearScopes();
+}
 
 const useUserStore = defineStore('user', {
   state: (): UserState => ({
@@ -85,12 +96,10 @@ const useUserStore = defineStore('user', {
     async login(loginForm: LoginData) {
       try {
         const { data } = await userLogin(loginForm);
-        setToken(`${data.token_type} ${data.access_token}`);
-        setScopes(data.scopes);
+        await handleLoginSuccess(data);
         await this.setPermissions(data.scopes);
       } catch (err) {
-        clearToken();
-        clearScopes();
+        await handleLoginError();
         await this.clearPermissions();
         throw err;
       }
@@ -98,24 +107,30 @@ const useUserStore = defineStore('user', {
     async loginByGithub(code: string) {
       try {
         const { data } = await githubAuthorizer({ code });
-        setToken(`${data.token_type} ${data.access_token}`);
-        setScopes(data.scopes);
+        await handleLoginSuccess(data);
         await this.setPermissions(data.scopes);
       } catch (err) {
-        clearToken();
-        clearScopes();
+        await handleLoginError();
         await this.clearPermissions();
         throw err;
       }
     },
-
+    async loginByGoogle(code: string) {
+      try {
+        const { data } = await googleAuthorizer({ code });
+        await handleLoginSuccess(data);
+        await this.setPermissions(data.scopes);
+      } catch (err) {
+        await handleLoginError();
+        await this.clearPermissions();
+        throw err;
+      }
+    },
     logoutCallBack() {
-      const appStore = useAppStore();
       this.resetInfo();
       clearToken();
       clearScopes();
       removeRouteListener();
-      appStore.clearServerMenu();
     },
     // Logout
     async logout() {

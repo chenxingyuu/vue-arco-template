@@ -3,7 +3,7 @@ import { AppRouteRecordRaw } from '../types';
 
 const SYSTEM: AppRouteRecordRaw = {
   path: '/system',
-  name: 'system',
+  name: 'System',
   component: DEFAULT_LAYOUT,
   meta: {
     locale: 'menu.system',
@@ -25,8 +25,8 @@ const SYSTEM: AppRouteRecordRaw = {
       },
     },
     {
-      path: 'role',
-      name: 'Role',
+      path: 'roles',
+      name: 'Roles',
       component: () => import('@/views/system/role/index.vue'),
       meta: {
         locale: 'menu.system.role',
@@ -36,8 +36,8 @@ const SYSTEM: AppRouteRecordRaw = {
       },
     },
     {
-      path: 'permission',
-      name: 'Permission',
+      path: 'permissions',
+      name: 'Permissions',
       component: () => import('@/views/system/permission/index.vue'),
       meta: {
         locale: 'menu.system.permission',

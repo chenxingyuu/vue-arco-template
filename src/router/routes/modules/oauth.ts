@@ -2,7 +2,7 @@ import { AppRouteRecordRaw } from '../types';
 
 const CALLBACK: AppRouteRecordRaw = {
   path: '/auth/github',
-  name: 'github',
+  name: 'Github',
   meta: {
     requiresAuth: false,
   },

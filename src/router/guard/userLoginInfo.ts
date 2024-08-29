@@ -8,29 +8,8 @@ export default function setupUserLoginInfoGuard(router: Router) {
   router.beforeEach(async (to, from, next) => {
     NProgress.start();
     const userStore = useUserStore();
-    if (isLogin()) {
-      if (userStore.role) {
-        next();
-      } else {
-        try {
-          await userStore.info();
-          next();
-        } catch (error) {
-          await userStore.logout();
-          next({
-            name: 'login',
-            query: {
-              redirect: to.name,
-              ...to.query,
-            } as LocationQueryRaw,
-          });
-        }
-      }
-    } else {
-      if (to.name === 'login' || to.name === 'github') {
-        next();
-        return;
-      }
+
+    const redirectToLogin = () => {
       next({
         name: 'login',
         query: {
@@ -38,6 +17,23 @@ export default function setupUserLoginInfoGuard(router: Router) {
           ...to.query,
         } as LocationQueryRaw,
       });
+    };
+
+    if (isLogin()) {
+      try {
+        if (!userStore.role) {
+          await userStore.info();
+        }
+        next();
+      } catch (error) {
+        await userStore.logout();
+        redirectToLogin();
+      }
+    } else if (to.name === 'login' || to.name === 'github') {
+      next();
+    } else {
+      redirectToLogin();
     }
+    NProgress.done();
   });
 }

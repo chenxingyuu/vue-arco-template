@@ -59,8 +59,6 @@
   import { isEqual } from 'lodash';
   import { getUserPermissions, getUserRoles } from '@/api/system/users';
   import { getAllRole } from '@/api/system/roles';
-  import profile from '@/router/routes/modules/profile';
-  import { User } from '@/api/system/types';
 
   // 创建两个 useLoading 实例
   const { loading: permissionLoading, setLoading: setPermissionLoading } =

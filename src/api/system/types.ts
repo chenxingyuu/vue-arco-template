@@ -41,6 +41,34 @@ export interface PermissionQueryParams extends PaginationParams {
   description?: string;
 }
 
+export interface Menu {
+  id: number;
+  name: string;
+  description: string;
+}
+
+export interface MenuTree {
+  path: string;
+  name: string;
+  components: string;
+  children?: MenuTree[];
+  meta: {
+    locale?: string;
+    icon?: string;
+    requires_auth: boolean;
+    order: number;
+    hide_in_menu: boolean;
+    hide_children_in_menu: boolean;
+    no_affix: boolean;
+    ignore_cache: boolean;
+  };
+}
+
+export interface MenuQueryParams extends PaginationParams {
+  name?: string;
+  description?: string;
+}
+
 export interface User {
   id: number;
   username: string;

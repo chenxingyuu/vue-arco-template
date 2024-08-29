@@ -19,8 +19,11 @@ export default function useMenuTree() {
     copyRouter.sort((a: RouteRecordNormalized, b: RouteRecordNormalized) => {
       return (a.meta.order || 0) - (b.meta.order || 0);
     });
-    function travel(_routes: RouteRecordRaw[], layer: number) {
-      if (!_routes) return null;
+    function travel(
+      _routes: RouteRecordRaw[],
+      layer: number
+    ): RouteRecordNormalized[] {
+      if (!_routes) return [];
 
       const collector: any = _routes.map((element) => {
         // no access
@@ -58,7 +61,7 @@ export default function useMenuTree() {
 
         return null;
       });
-      return collector.filter(Boolean);
+      return collector.filter(Boolean) as RouteRecordNormalized[];
     }
     return travel(copyRouter, 0);
   });

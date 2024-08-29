@@ -5,16 +5,7 @@ import localeWorkplace from '@/views/dashboard/workplace/locale/zh-CN';
 
 import localeMonitor from '@/views/dashboard/monitor/locale/zh-CN';
 
-import localeSearchTable from '@/views/list/search-table/locale/zh-CN';
-import localeCardList from '@/views/list/card/locale/zh-CN';
-
-import localeStepForm from '@/views/form/step/locale/zh-CN';
-import localeGroupForm from '@/views/form/group/locale/zh-CN';
-
 import localeBasicProfile from '@/views/profile/basic/locale/zh-CN';
-
-import localeDataAnalysis from '@/views/visualization/data-analysis/locale/zh-CN';
-import localeMultiDAnalysis from '@/views/visualization/multi-dimension-data-analysis/locale/zh-CN';
 
 import localeSuccess from '@/views/result/success/locale/zh-CN';
 import localeError from '@/views/result/error/locale/zh-CN';
@@ -27,6 +18,7 @@ import localeUserInfo from '@/views/user/info/locale/zh-CN';
 import localeUserSetting from '@/views/user/setting/locale/zh-CN';
 
 import localeSystemPermission from '@/views/system/permission/locale/zh-CN';
+import localeSystemMenu from '@/views/system/menu/locale/zh-CN';
 import localeSystemRole from '@/views/system/role/locale/zh-CN';
 import localeSystemUser from '@/views/system/user/locale/zh-CN';
 
@@ -38,6 +30,7 @@ export default {
   'menu.system.user': '用户管理',
   'menu.system.role': '角色管理',
   'menu.system.permission': '权限管理',
+  'menu.system.menu': '菜单管理',
   'menu.server.dashboard': '仪表盘-服务端',
   'menu.server.workplace': '工作台-服务端',
   'menu.server.monitor': '实时监控-服务端',
@@ -56,15 +49,8 @@ export default {
   ...localeMessageBox,
   ...localeLogin,
   ...localeWorkplace,
-
   ...localeMonitor,
-  ...localeSearchTable,
-  ...localeCardList,
-  ...localeStepForm,
-  ...localeGroupForm,
   ...localeBasicProfile,
-  ...localeDataAnalysis,
-  ...localeMultiDAnalysis,
   ...localeSuccess,
   ...localeError,
   ...locale403,
@@ -75,4 +61,5 @@ export default {
   ...localeSystemPermission,
   ...localeSystemRole,
   ...localeSystemUser,
+  ...localeSystemMenu,
 };
