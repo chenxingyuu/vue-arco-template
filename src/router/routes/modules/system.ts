@@ -10,6 +10,7 @@ const SYSTEM: AppRouteRecordRaw = {
     requiresAuth: true,
     icon: 'icon-menu',
     order: 5,
+    roles: ['*'],
   },
   children: [
     {
@@ -31,7 +32,7 @@ const SYSTEM: AppRouteRecordRaw = {
         locale: 'menu.system.role',
         requiresAuth: true,
         icon: 'icon-skin',
-        roles: ['admin'],
+        roles: ['*'],
       },
     },
     {
@@ -42,7 +43,7 @@ const SYSTEM: AppRouteRecordRaw = {
         locale: 'menu.system.permission',
         requiresAuth: true,
         icon: 'icon-safe',
-        roles: ['admin'],
+        roles: ['*'],
       },
     },
   ],

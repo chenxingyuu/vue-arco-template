@@ -1,7 +1,6 @@
 <template>
   <div class="login-form-wrapper">
     <div class="login-form-title">{{ $t('login.form.title') }}</div>
-    <div class="login-form-sub-title">{{ $t('login.form.title') }}</div>
     <div class="login-form-error-msg">{{ errorMessage }}</div>
     <a-form
       ref="loginForm"
@@ -12,13 +11,14 @@
     >
       <a-form-item
         field="username"
-        :rules="[{ required: true, message: $t('login.form.userName.errMsg') }]"
+        :rules="[{ required: true, message: $t('login.form.username.errMsg') }]"
         :validate-trigger="['change', 'blur']"
+        :size="'large'"
         hide-label
       >
         <a-input
           v-model="userInfo.username"
-          :placeholder="$t('login.form.userName.placeholder')"
+          :placeholder="$t('login.form.username.placeholder')"
         >
           <template #prefix>
             <icon-user />
@@ -59,6 +59,99 @@
           {{ $t('login.form.register') }}
         </a-button>
       </a-space>
+      <a-divider plain>{{ $t('login.form.loginWith') }}</a-divider>
+      <a-space :size="16" direction="horizontal">
+        <a-button
+          type="text"
+          long
+          class="login-form-login-with-btn"
+          @click="loginWithGithub"
+        >
+          <template #icon>
+            <a-link
+              href="https://github.com/login/oauth/authorize?scope=user:email&client_id=d1655d9a53afa693d921"
+            >
+              <icon-github size="24" />
+            </a-link>
+          </template>
+        </a-button>
+        <a-button
+          type="text"
+          long
+          class="login-form-login-with-btn"
+          disabled
+          @click="loginWithGoogle"
+        >
+          <template #icon>
+            <a-link
+              disabled
+              href="https://github.com/login/oauth/authorize?scope=user:email&client_id=d1655d9a53afa693d921"
+            >
+              <icon-google size="24" href="" />
+            </a-link>
+          </template>
+        </a-button>
+        <a-button
+          type="text"
+          long
+          class="login-form-login-with-btn"
+          @click="loginWithFacebook"
+        >
+          <template #icon>
+            <a-link
+              disabled
+              href="https://github.com/login/oauth/authorize?scope=user:email&client_id=d1655d9a53afa693d921"
+            >
+              <icon-facebook size="24" href="" />
+            </a-link>
+          </template>
+        </a-button>
+        <a-button
+          type="text"
+          long
+          class="login-form-login-with-btn"
+          @click="loginWithTwitter"
+        >
+          <template #icon>
+            <a-link
+              disabled
+              href="https://github.com/login/oauth/authorize?scope=user:email&client_id=d1655d9a53afa693d921"
+            >
+              <icon-twitter size="24" href="" />
+            </a-link>
+          </template>
+        </a-button>
+        <a-button
+          type="text"
+          long
+          class="login-form-login-with-btn"
+          @click="loginWithWechat"
+        >
+          <template #icon>
+            <a-link
+              disabled
+              href="https://github.com/login/oauth/authorize?scope=user:email&client_id=d1655d9a53afa693d921"
+            >
+              <icon-wechat size="24" />
+            </a-link>
+          </template>
+        </a-button>
+        <a-button
+          type="text"
+          long
+          class="login-form-login-with-btn"
+          @click="loginWithQQ"
+        >
+          <template #icon>
+            <a-link
+              disabled
+              href="https://github.com/login/oauth/authorize?scope=user:email&client_id=d1655d9a53afa693d921"
+            >
+              <icon-qq size="24" />
+            </a-link>
+          </template>
+        </a-button>
+      </a-space>
     </a-form>
   </div>
 </template>
@@ -72,7 +165,7 @@
   import { useStorage } from '@vueuse/core';
   import { useUserStore } from '@/store';
   import useLoading from '@/hooks/loading';
-  import type { LoginData } from '@/api/user';
+  import { LoginData } from '@/api/system/types';
 
   const router = useRouter();
   const { t } = useI18n();
@@ -126,6 +219,24 @@
   const setRememberPassword = (value: boolean) => {
     loginConfig.value.rememberPassword = value;
   };
+  const loginWithGithub = () => {
+    Message.info('login with github');
+  };
+  const loginWithGoogle = () => {
+    Message.info('login with google');
+  };
+  const loginWithFacebook = () => {
+    Message.info('login with facebook');
+  };
+  const loginWithTwitter = () => {
+    Message.info('login with twitter');
+  };
+  const loginWithWechat = () => {
+    Message.info('login with wechat');
+  };
+  const loginWithQQ = () => {
+    Message.info('login with qq');
+  };
 </script>
 
 <style lang="less" scoped>
@@ -136,6 +247,7 @@
 
     &-title {
       color: var(--color-text-1);
+      text-align: center;
       font-weight: 500;
       font-size: 24px;
       line-height: 32px;
@@ -143,6 +255,7 @@
 
     &-sub-title {
       color: var(--color-text-3);
+      text-align: center;
       font-size: 16px;
       line-height: 24px;
     }
@@ -159,6 +272,10 @@
     }
 
     &-register-btn {
+      color: var(--color-text-3) !important;
+    }
+
+    &-login-with-btn {
       color: var(--color-text-3) !important;
     }
   }

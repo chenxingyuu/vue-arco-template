@@ -20,9 +20,6 @@ setupMock({
           avatar:
             '//lf1-xgcdn-tos.pstatp.com/obj/vcloud/vadmin/start.8e0e4855ee346a46ccff8ff3e24db27b.png',
           email: 'wangliqun@email.com',
-          job: 'frontend',
-          jobName: '前端艺术家',
-          organization: 'Frontend',
           organizationName: '前端',
           location: 'beijing',
           locationName: '北京',

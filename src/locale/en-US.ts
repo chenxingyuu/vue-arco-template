@@ -27,6 +27,8 @@ import localeUserInfo from '@/views/user/info/locale/en-US';
 import localeUserSetting from '@/views/user/setting/locale/en-US';
 
 import localeSystemPermission from '@/views/system/permission/locale/en-US';
+import localeSystemRole from '@/views/system/role/locale/en-US';
+import localeSystemUser from '@/views/system/user/locale/en-US';
 
 import localeSettings from './en-US/settings';
 
@@ -70,5 +72,7 @@ export default {
   ...locale500,
   ...localeUserInfo,
   ...localeSystemPermission,
+  ...localeSystemRole,
   ...localeUserSetting,
+  ...localeSystemUser,
 };

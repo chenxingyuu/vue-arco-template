@@ -1,6 +1,6 @@
 <template>
-  <a-card class="general-card" :title="$t('system.permission.title')">
-    <permission-filter
+  <a-card class="general-card" :title="$t('system.user.title')">
+    <user-filter
       @reset="reset"
       @search="search"
       @create="() => openDrawer('add')"
@@ -12,7 +12,7 @@
       :loading="loading"
       :pagination="pagination"
       :columns="columns"
-      :data="permissions"
+      :data="users"
       :stripe="true"
       :bordered="false"
       :size="size"
@@ -23,32 +23,33 @@
       </template>
       <template #operations="{ record }">
         <a-button
-          v-permission="['system:permission:read']"
+          v-Role="['system:user:read']"
           type="text"
           size="small"
           @click="() => openDrawer('detail', record)"
         >
-          {{ $t('system.permission.table.columns.operations.view') }}
+          {{ $t('system.user.table.columns.operations.view') }}
         </a-button>
         <a-button
-          v-permission="['system:permission:update']"
+          v-Role="['system:user:update']"
           type="text"
           size="small"
           style="margin-left: 8px"
           @click="() => openDrawer('edit', record)"
         >
-          {{ $t('system.permission.table.columns.operations.edit') }}
+          {{ $t('system.user.table.columns.operations.edit') }}
         </a-button>
       </template>
     </a-table>
-    <permission-detail
+    <user-detail
       :visible="drawerVisible"
       :title="drawerTitle"
       :mode="drawerMode"
-      :initial-form-model="selectedPermission"
+      :user-id="selectedUserID"
+      :initial-form-model="selectedUser"
       @update:visible="(val) => (drawerVisible = val)"
-      @add="addPermission"
-      @edit="editPermission"
+      @add="addUser"
+      @edit="editUser"
     />
   </a-card>
 </template>
@@ -57,65 +58,67 @@
   import { ref, computed, reactive } from 'vue';
   import { useI18n } from 'vue-i18n';
   import {
-    createPermission,
-    getPermissionList,
-    updatePermission,
-  } from '@/api/system/permissions';
+    createUser,
+    getUserList,
+    updateUser,
+    updateUserPermissions,
+    updateUserRoles,
+  } from '@/api/system/users';
   import type { TableColumnData } from '@arco-design/web-vue/es/table/interface';
   import useLoading from '@/hooks/loading';
   import { formatDate } from '@/utils/date';
-  import PermissionFilter from '@/views/system/permission/components/permission-filter.vue';
-  import PermissionDetail from '@/views/system/permission/components/permission-detail.vue';
-  import { Permission, PermissionQueryParams } from '@/api/system/types';
+  import UserFilter from '@/views/system/user/components/user-filter.vue';
+  import UserDetail from '@/views/system/user/components/user-detail.vue';
+  import { User, UserQueryParams } from '@/api/system/types';
 
   const drawerVisible = ref(false);
   const drawerTitle = ref('');
   const drawerMode = ref<'add' | 'edit' | 'detail'>('add');
-  const selectedPermission = ref<Pick<Permission, 'name' | 'description'>>({
-    name: '',
-    description: '',
+  const selectedUserID = ref(0);
+  const selectedUser = ref<Pick<User, 'username'>>({
+    username: '',
   });
 
   type SizeProps = 'mini' | 'small' | 'medium' | 'large';
 
   const { loading, setLoading } = useLoading(true);
   const { t } = useI18n();
-  const permissions = ref<Permission[]>([]);
+  const users = ref<User[]>([]);
   const formModel = reactive({
-    name: '',
+    username: '',
     description: '',
   });
   const size = ref<SizeProps>('medium');
   const columns = computed<TableColumnData[]>(() => [
     {
-      title: t('system.permission.table.columns.id'),
+      title: t('system.user.table.columns.id'),
       dataIndex: 'id',
       width: 80,
     },
     {
-      title: t('system.permission.table.columns.name'),
-      dataIndex: 'name',
+      title: t('system.user.table.columns.username'),
+      dataIndex: 'username',
       width: 200,
     },
     {
-      title: t('system.permission.table.columns.description'),
+      title: t('system.user.table.columns.description'),
       dataIndex: 'description',
     },
     {
-      title: t('system.permission.table.columns.createdAt'),
+      title: t('system.user.table.columns.createdAt'),
       dataIndex: 'created_at',
       slotName: 'created_at',
       width: 250,
     },
     {
-      title: t('system.permission.table.columns.operations'),
+      title: t('system.user.table.columns.operations'),
       dataIndex: 'operations',
       slotName: 'operations',
       align: 'center',
       width: 250,
     },
   ]);
-  const basePagination: PermissionQueryParams = {
+  const basePagination: UserQueryParams = {
     page: 1,
     limit: 10,
   };
@@ -123,11 +126,11 @@
     ...basePagination,
   });
 
-  const fetchData = async (params: PermissionQueryParams = pagination) => {
+  const fetchData = async (params: UserQueryParams = pagination) => {
     setLoading(true);
     try {
-      const { data } = await getPermissionList(params);
-      permissions.value = data.list;
+      const { data } = await getUserList(params);
+      users.value = data.list;
       pagination.page = data.page;
       pagination.total = data.total;
     } catch (err) {
@@ -143,72 +146,105 @@
     fetchData({
       ...basePagination,
       ...formModel,
-    } as unknown as PermissionQueryParams);
+    } as unknown as UserQueryParams);
   };
 
   const onPageChange = (page: number) => {
     fetchData({ ...basePagination, page });
   };
   const reset = () => {
-    formModel.name = '';
+    formModel.username = '';
     formModel.description = '';
   };
 
-  const changed = (newFormModel: { name: string; description: string }) => {
-    formModel.name = newFormModel.name;
+  const changed = (newFormModel: { username: string; description: string }) => {
+    formModel.username = newFormModel.username;
     formModel.description = newFormModel.description;
   };
 
-  const addPermission = async (permission: Permission) => {
-    try {
-      await createPermission({
-        name: permission.name,
-        description: permission.description,
-      });
-      // Refresh or handle after save
-      drawerVisible.value = false;
-      await fetchData();
-    } catch (err) {
-      // Handle error
-    }
-  };
-
-  const editPermission = async (permission: Permission) => {
-    try {
-      await updatePermission(permission.id, {
-        name: permission.name,
-        description: permission.description,
-      });
-      // Refresh or handle after save
-      drawerVisible.value = false;
-      await fetchData();
-    } catch (err) {
-      // Handle error
-    }
-  };
-
-  const openDrawer = (
-    mode: 'add' | 'edit' | 'detail',
-    permission?: Permission
+  const addUser = async (
+    user: User,
+    permissions: string[],
+    roles: string[]
   ) => {
+    try {
+      const { data } = await createUser({
+        username: user.username,
+      });
+      await updateUserPermissions(
+        data.id,
+        permissions.map((str) => Number(str))
+      );
+      await updateUserRoles(
+        data.id,
+        roles.map((str) => Number(str))
+      );
+      // Refresh or handle after save
+      drawerVisible.value = false;
+      await fetchData();
+    } catch (err) {
+      // Handle error
+    }
+  };
+
+  const editUser = async (
+    user: User,
+    permissions: string[],
+    roles: string[],
+    equalForm: boolean,
+    equalPermission: boolean,
+    equalRole: boolean
+  ) => {
+    try {
+      if (!equalForm) {
+        await updateUser(user.id, {
+          username: user.username,
+        });
+      }
+      if (!equalPermission) {
+        await updateUserPermissions(
+          user.id,
+          permissions.map((str) => Number(str))
+        );
+      }
+      if (!equalRole) {
+        await updateUserRoles(
+          user.id,
+          roles.map((str) => Number(str))
+        );
+      }
+
+      // Refresh or handle after save
+      drawerVisible.value = false;
+      await fetchData();
+    } catch (err) {
+      // Handle error
+    }
+  };
+
+  const openDrawer = (mode: 'add' | 'edit' | 'detail', user?: User) => {
     drawerMode.value = mode;
 
     // eslint-disable-next-line default-case
     switch (mode) {
       case 'add':
-        drawerTitle.value = '新增权限';
+        drawerTitle.value = t(
+          'system.user.table.columns.operations.create.title'
+        );
         break;
       case 'detail':
-        drawerTitle.value = '权限详情';
+        drawerTitle.value = t(
+          'system.user.table.columns.operations.view.title'
+        );
         break;
       case 'edit':
-        drawerTitle.value = '编辑权限';
+        drawerTitle.value = t(
+          'system.user.table.columns.operations.edit.title'
+        );
         break;
     }
-
-    selectedPermission.value = permission
-      ? { ...permission }
-      : { name: '', description: '' };
+    selectedUserID.value = user ? user.id : 0;
+    selectedUser.value = user ? { ...user } : { username: '' };
     drawerVisible.value = true;
   };
 </script>

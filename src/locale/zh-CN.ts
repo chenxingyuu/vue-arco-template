@@ -27,6 +27,8 @@ import localeUserInfo from '@/views/user/info/locale/zh-CN';
 import localeUserSetting from '@/views/user/setting/locale/zh-CN';
 
 import localeSystemPermission from '@/views/system/permission/locale/zh-CN';
+import localeSystemRole from '@/views/system/role/locale/zh-CN';
+import localeSystemUser from '@/views/system/user/locale/zh-CN';
 
 import localeSettings from './zh-CN/settings';
 
@@ -71,4 +73,6 @@ export default {
   ...localeUserInfo,
   ...localeUserSetting,
   ...localeSystemPermission,
+  ...localeSystemRole,
+  ...localeSystemUser,
 };

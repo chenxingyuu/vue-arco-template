@@ -11,25 +11,23 @@
         <a-row :gutter="16">
           <a-col :span="12">
             <a-form-item
-              field="name"
-              :label="$t('system.permission.form.name')"
+              field="username"
+              :label="$t('system.user.form.username')"
             >
               <a-input
-                v-model="localFormModel.name"
-                :placeholder="$t('system.permission.form.name.placeholder')"
+                v-model="localFormModel.username"
+                :placeholder="$t('system.user.form.username.placeholder')"
               />
             </a-form-item>
           </a-col>
           <a-col :span="12">
             <a-form-item
               field="description"
-              :label="$t('system.permission.form.description')"
+              :label="$t('system.user.form.description')"
             >
               <a-input
                 v-model="localFormModel.description"
-                :placeholder="
-                  $t('system.permission.form.description.placeholder')
-                "
+                :placeholder="$t('system.user.form.description.placeholder')"
               />
             </a-form-item>
           </a-col>
@@ -52,7 +50,7 @@
           {{ $t('searchTable.form.search') }}
         </a-button>
         <a-button
-          v-permission="['system:permission:update', 'system:permission:read']"
+          v-permission="['system:user:update', 'system:user:read']"
           type="primary"
           @click="onCreate"
         >
@@ -70,7 +68,7 @@
   import { defineEmits, ref, watch } from 'vue';
 
   const localFormModel = ref({
-    name: '',
+    username: '',
     description: '',
   });
 
